@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon
+
+# Editor
+.vscode/
+.idea/
+
+# Promotional_Materials
+**/Promotional_Materials
+# Chrome extension build artifacts
+*.zip
+*.crx
+*.pem
+
+# Secrets (never commit API keys)
+.env
+secrets.*

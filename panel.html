@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>✦</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+  <div class="app">
+
+  <!-- Floating controls -->
+    <div class="float-controls">
+      <a class="float-btn" href="options.html" target="_blank" title="设置">cfg</a>
+      <button class="float-btn float-close" id="closeBtn" title="关闭">✕</button>
+    </div>
+
+<div class="content">
+
+      <!-- 生成回复 -->
+      <div class="card reply-card">
+        <div class="reply-header">
+          <span class="section-label">生成回复</span>
+          <div class="reply-lang-toggle">
+            <button class="lang-btn active" data-reply-lang="zh">中文</button>
+            <button class="lang-btn" data-reply-lang="en">EN</button>
+          </div>
+          <button id="copyBtn" class="copy-btn" disabled><span id="copyText">⎘ 复制</span></button>
+        </div>
+        <div id="replyBox" class="reply-box empty">等待生成...</div>
+        <div id="copyToast" class="copy-toast"></div>
+      </div>
+
+      <!-- 高级选项 -->
+      <div class="card">
+        <button class="advanced-toggle" id="advancedToggle">
+          <span class="adv-label">高级选项</span>
+          <span id="toggleArrow" class="arrow">▼</span>
+        </button>
+        <div class="advanced-body" id="advancedPanel">
+
+          <div class="option-row">
+            <span class="option-label" data-i18n="personality">人格</span>
+            <select id="personalitySelect" class="option-select">
+              <option value="朋友">贴心朋友</option>
+              <option value="导师">智慧导师</option>
+              <option value="职场同事">职场同事</option>
+              <option value="心理咨询师">心理咨询师</option>
+              <option value="家人">温暖家人</option>
+            </select>
+          </div>
+
+          <div class="option-row">
+            <span class="option-label" data-i18n="length">长度</span>
+            <div class="length-options">
+              <button class="length-btn" data-length="短">短</button>
+              <button class="length-btn active" data-length="中">中</button>
+              <button class="length-btn" data-length="长">长</button>
+            </div>
+          </div>
+
+          <div class="option-row">
+            <span class="option-label" data-i18n="tone">语气</span>
+            <div class="slider-wrapper">
+              <span class="slider-label">温和</span>
+              <input type="range" id="toneSlider" min="1" max="5" value="3" class="tone-slider" />
+              <span class="slider-label">热烈</span>
+            </div>
+          </div>
+
+          <div class="option-row prompt-row">
+            <div class="prompt-row-header">
+              <span class="option-label" data-i18n="prompt">提示词</span>
+              <button id="resetPromptBtn" class="reset-btn">重置</button>
+            </div>
+            <textarea id="promptEditor" class="prompt-editor" placeholder="使用 {{原文}} 代表选中的文字"></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 情绪 -->
+      <div class="card">
+        <div class="emotion-body">
+          <div class="section-label">情绪风格</div>
+          <div class="emotion-grid">
+            <button class="emotion-btn active" data-emotion="温暖"><span class="kaomoji">(◕‿◕)</span><span class="emo-label">温暖</span></button>
+            <button class="emotion-btn" data-emotion="共情"><span class="kaomoji">(；_;)</span><span class="emo-label">共情</span></button>
+            <button class="emotion-btn" data-emotion="鼓励"><span class="kaomoji">ᕦ(ò_ó)ᕤ</span><span class="emo-label">鼓励</span></button>
+            <button class="emotion-btn" data-emotion="幽默"><span class="kaomoji">(¬‿¬)</span><span class="emo-label">幽默</span></button>
+            <button class="emotion-btn" data-emotion="专业"><span class="kaomoji">(｀･ω･)</span><span class="emo-label">专业</span></button>
+            <button class="emotion-btn" data-emotion="关怀"><span class="kaomoji">(っ◔◡◔)</span><span class="emo-label">关怀</span></button>
+            <button class="emotion-btn" data-emotion="感谢"><span class="kaomoji">m(_ _)m</span><span class="emo-label">感谢</span></button>
+            <button class="emotion-btn" data-emotion="道歉"><span class="kaomoji">(。•́︿•̀。)</span><span class="emo-label">道歉</span></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <button id="generateBtn" class="generate-btn">
+        <span id="generateIcon">✦</span>
+        <span id="generateText">生成回复</span>
+      </button>
+    </div>
+
+  </div>
+  <script src="panel.js"></script>
+</body>
+</html>

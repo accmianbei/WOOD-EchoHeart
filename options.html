@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>设置 — 木头</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0c;
+      --surface:  #101012;
+      --surface2: #161618;
+      --border:   #1e1e24;
+      --border2:  #2a2a32;
+      --text:     #f0f0f0;
+      --text-sub: #666672;
+      --text-dim: #333340;
+      --accent:   #c8f135;
+      --accent-dim: rgba(200,241,53,0.08);
+      --accent-border: rgba(200,241,53,0.3);
+      --green:    #3dd68c;
+      --red:      #f06060;
+      --scrollbar-thumb: #acd433;
+      --scrollbar-thumb-active: #b0dc2d;
+    }
+
+    html, body {
+      background: var(--bg);
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", "Segoe UI", sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .card {
+      background: var(--surface);
+      padding: 28px 24px;
+      width: 100%;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .github-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: var(--text-sub);
+      transition: all 0.15s;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+    .github-link:hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+    .github-link svg { display: block; }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0a0a0c;
+      flex-shrink: 0;
+    }
+
+    .toggle-btn {
+      font-family: monospace;
+      font-size: 11px;
+      letter-spacing: -0.5px;
+    }
+    .logo-text h1 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .logo-text p {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 7px;
+    }
+
+    select, input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: var(--surface2);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 14px;
+      -webkit-appearance: none;
+    }
+    select:focus, input:focus { border-color: var(--accent-border); }
+
+    .input-row {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 5px;
+    }
+    .input-row input { margin-bottom: 0; flex: 1; }
+
+    .toggle-btn {
+      width: 40px;
+      flex-shrink: 0;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--text-sub);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toggle-btn:hover {
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+
+    .hint {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .hint a { color: var(--accent); text-decoration: none; opacity: 0.8; }
+    .hint a:hover { opacity: 1; }
+
+    .save-btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--accent);
+      color: #0a0a0c;
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .save-btn:hover { background: #d4f84a; transform: translateY(-1px); } /* overridden in light theme below */
+
+    .status {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 12px;
+      min-height: 16px;
+    }
+    .status.success { color: var(--green); }
+    .status.error   { color: var(--red); }
+
+    .info-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 13px 14px;
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.85;
+    }
+    .info-box strong { color: var(--accent); }
+
+    .follow-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0 2px;
+    }
+    .follow-text {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .follow-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 20px;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: all 0.15s;
+    }
+    .follow-btn:hover {
+      border-color: var(--accent-border);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* placeholder color */
+    ::placeholder { color: var(--text-dim); }
+    option { background: #26262c; }
+
+    .lang-toggle-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .lang-toggle-btn {
+      flex: 1;
+      padding: 9px;
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      background: var(--surface2);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      outline: none;
+    }
+    .lang-toggle-btn:hover {
+      border-color: var(--accent-border);
+      color: var(--accent);
+    }
+    .lang-toggle-btn.active {
+      border-color: var(--accent-border);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    [data-theme="light"] {
+      --bg:        #b2c4a4;
+      --surface:   #f4f1eb;
+      --surface2:  #eae6df;
+      --border:    #d6d0c8;
+      --border2:   #c4bdb4;
+      --text:      #1c1c18;
+      --text-sub:  #5c5c50;
+      --text-dim:  #9c9c8c;
+      --accent:    #d95f3b;
+      --accent-dim: rgba(217, 95, 59, 0.10);
+      --accent-border: rgba(217, 95, 59, 0.40);
+      --green:     #2e7d52;
+      --red:       #c0392b;
+      --scrollbar-thumb: #ea8b5c;
+      --scrollbar-thumb-active: #c94f2c;
+    }
+    [data-theme="light"] .save-btn { color: #fff; }
+    [data-theme="light"] .save-btn:hover { background: #c94f2c; }
+    [data-theme="light"] .logo-icon { background: var(--accent); }
+    [data-theme="light"] option { background: var(--surface2); color: var(--text); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; transition: background 0.3s; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-active); }
+    html.is-scrolling::-webkit-scrollbar-thumb,
+    .is-scrolling::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb-active); }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <div class="logo-row">
+      <div class="logo-icon">
+        <svg width="20" height="16" viewBox="0 0 16 12" xmlns="http://www.w3.org/2000/svg" fill="#0a0a0c">
+          <rect x="2"  y="0" width="2" height="2"/><rect x="4"  y="0" width="2" height="2"/>
+          <rect x="10" y="0" width="2" height="2"/><rect x="12" y="0" width="2" height="2"/>
+          <rect x="0"  y="2" width="16" height="2"/>
+          <rect x="0"  y="4" width="16" height="2"/>
+          <rect x="2"  y="6" width="12" height="2"/>
+          <rect x="4"  y="8" width="8"  height="2"/>
+          <rect x="6"  y="10" width="4" height="2"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>木头</h1>
+        <p>配置你的 API 连接</p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:2px;">
+        <a class="github-link" id="xLink" href="#" target="_blank" title="X / Twitter">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.836L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a class="github-link" id="githubLink" href="#" target="_blank" title="GitHub">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <label for="providerSelect">API 提供商</label>
+    <select id="providerSelect">
+      <option value="deepseek">[ DS ] DeepSeek</option>
+      <option value="claude">[ CL ] Claude (Anthropic)</option>
+      <option value="openai">[ OA ] OpenAI</option>
+      <option value="gemini">[ GM ] Gemini (Google)</option>
+      <option value="grok">[ GK ] Grok (xAI)</option>
+      <option value="glm">[ ZP ] GLM (智谱)</option>
+      <option value="qwen">[ QW ] Qwen (通义千问)</option>
+      <option value="moonshot">[ KM ] Moonshot (Kimi)</option>
+    </select>
+
+    <label for="modelInput">模型名称</label>
+    <input type="text" id="modelInput" placeholder="留空使用默认模型" autocomplete="off" />
+
+    <label for="apiKeyInput">API Key</label>
+    <div class="input-row">
+      <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off" />
+      <button class="toggle-btn" id="toggleVisibility" title="显示/隐藏">(o_o)</button>
+    </div>
+    <p class="hint" id="hintText"></p>
+
+    <button class="save-btn" id="saveBtn">保存设置</button>
+    <div class="status" id="status"></div>
+
+    <hr class="divider" />
+
+    <label>界面语言 / Language</label>
+    <div class="lang-toggle-row">
+      <button class="lang-toggle-btn" id="langZh" data-lang="zh">中文</button>
+      <button class="lang-toggle-btn" id="langEn" data-lang="en">English</button>
+    </div>
+
+    <label>主题 / Theme</label>
+    <div class="lang-toggle-row">
+      <button class="lang-toggle-btn" id="themeDark" data-theme-val="dark">◑ 深色</button>
+      <button class="lang-toggle-btn" id="themeLight" data-theme-val="light">○ 浅色</button>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="info-box">
+      <strong>// 使用方式</strong><br>
+      1. 在网页选中一段文字<br>
+      2. 右键 → <strong>生成情感回复</strong><br>
+      3. 选择情绪风格，点击生成<br>
+      4. 一键复制回复内容
+    </div>
+
+    <hr class="divider" />
+
+    <div class="follow-box">
+      <div class="follow-text">觉得好用？关注作者，获取更新动态 ♡</div>
+      <a class="follow-btn" href="https://x.com/acc_mianbei" target="_blank">𝕏 &nbsp;@acc_mianbei</a>
+    </div>
+
+  </div>
+
+  <script src="options.js"></script>
+  <script>
+    (function () {
+      const timers = new WeakMap();
+      function onScroll(e) {
+        const el = (e.target === document || e.target === window)
+          ? document.documentElement
+          : e.target;
+        el.classList.add("is-scrolling");
+        clearTimeout(timers.get(el));
+        timers.set(el, setTimeout(() => el.classList.remove("is-scrolling"), 800));
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    })();
+  </script>
+</body>
+</html>
