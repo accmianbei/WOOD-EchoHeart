@@ -190,3 +190,22 @@ saveBtn.addEventListener("click", () => {
     setTimeout(() => { statusEl.textContent = ""; }, 3000);
   });
 });
+
+const scrollTimers = new WeakMap();
+
+function markScrolling(target) {
+  target.classList.add("is-scrolling");
+  clearTimeout(scrollTimers.get(target));
+  scrollTimers.set(target, setTimeout(() => target.classList.remove("is-scrolling"), 800));
+}
+
+window.addEventListener("scroll", () => {
+  markScrolling(document.documentElement);
+}, { passive: true });
+
+document.addEventListener("scroll", (event) => {
+  const target = event.target === document ? document.documentElement : event.target;
+  if (target && target.classList) {
+    markScrolling(target);
+  }
+}, { passive: true, capture: true });
