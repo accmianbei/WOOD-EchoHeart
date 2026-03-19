@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>推特段子生成器 — 木头</title>
+  <link rel="stylesheet" href="tweet-generator.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow" id="heroEyebrow">主动创作工具</div>
+        <h1 id="heroTitle">推特段子生成器</h1>
+        <p id="heroDesc">选择或输入 RSS 源，整理热点事件，再生成带情绪风格的推文段子。</p>
+      </div>
+      <a class="back-link" href="options.html" id="backLink">返回设置</a>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="section-head">
+          <span class="section-kicker" id="sourceKicker">素材源</span>
+          <h2 id="sourceTitle">RSS 订阅</h2>
+        </div>
+
+        <label class="field-label" for="rssPreset" id="presetLabel">预设来源</label>
+        <select id="rssPreset" class="field">
+          <option value="">选择一个预设 RSS 源</option>
+          <option value="https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml">New York Times</option>
+          <option value="https://feeds.bbci.co.uk/news/world/rss.xml">BBC World</option>
+          <option value="https://www.theverge.com/rss/index.xml">The Verge</option>
+          <option value="https://techcrunch.com/feed/">TechCrunch</option>
+        </select>
+
+        <label class="field-label" for="rssInput" id="customLabel">或手动输入 RSS 链接</label>
+        <div class="field-row">
+          <input id="rssInput" class="field" type="url" placeholder="https://example.com/feed.xml" />
+          <button id="addSourceBtn" class="ghost-btn">添加</button>
+        </div>
+
+        <div id="sourceTags" class="tag-list source-tag-list"></div>
+
+        <div class="source-actions">
+          <button id="loadFeedBtn" class="ghost-btn" type="button">读取所有源</button>
+        </div>
+
+        <div class="tag-editor-head source-keyword-block">
+          <div>
+            <div class="field-label tag-label" id="keywordWeightLabel">新闻关键词权重</div>
+            <div class="tag-editor-hint" id="keywordWeightHint">像打 tag 一样维护关键词，权重越高，模型越优先关注相关事件信息。</div>
+          </div>
+        </div>
+
+        <div class="tag-input-row">
+          <input id="keywordInput" class="field" type="text" placeholder="输入关键词，如 Trump" />
+          <input id="keywordWeightInput" class="field weight-field" type="number" min="1" max="10" value="8" />
+          <button id="addKeywordBtn" class="ghost-btn" type="button">添加</button>
+        </div>
+
+        <div id="keywordTags" class="tag-list"></div>
+
+        <p class="field-hint" id="sourceHint">第一版先搭好工作台骨架。后续接入 RSS 抓取时，这里会按订阅池里的多个源去读取事件和图片。</p>
+
+        <div class="event-shell">
+          <div class="event-list-head">
+            <span id="eventListTitle">事件排行榜</span>
+            <span class="pill" id="eventStatus">等待读取</span>
+          </div>
+          <div id="eventList" class="event-list">
+            <button class="event-item active" type="button" data-event-title="某公司凌晨发布离谱更新，评论区瞬间炸锅" data-event-desc="适合测试科技热点吐槽型推文。">
+              <span class="event-item-title">某公司凌晨发布离谱更新，评论区瞬间炸锅</span>
+              <span class="event-item-meta">示例事件 · 科技 · 1 小时前</span>
+            </button>
+            <button class="event-item" type="button" data-event-title="国际赛场逆转翻盘，网友开始集体造梗" data-event-desc="适合测试体育或娱乐热梗型推文。">
+              <span class="event-item-title">国际赛场逆转翻盘，网友开始集体造梗</span>
+              <span class="event-item-meta">示例事件 · 体育 · 3 小时前</span>
+            </button>
+            <button class="event-item" type="button" data-event-title="一条政策新闻引发两极反应，各路博主疯狂跟进" data-event-desc="适合测试反串、讽刺、犀利点评方向。">
+              <span class="event-item-title">一条政策新闻引发两极反应，各路博主疯狂跟进</span>
+              <span class="event-item-meta">示例事件 · 社会 · 5 小时前</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <span class="section-kicker" id="composeKicker">创作台</span>
+          <h2 id="composeTitle">推文生成</h2>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-image" id="imagePreview">
+            <div class="preview-empty" id="previewEmpty">RSS 有图时会显示在这里</div>
+          </div>
+          <div class="preview-copy">
+            <div class="preview-label" id="selectedEventLabel">当前事件</div>
+            <div class="preview-title" id="selectedEventTitle">某公司凌晨发布离谱更新，评论区瞬间炸锅</div>
+            <div class="preview-desc" id="selectedEventDesc">适合测试科技热点吐槽型推文。</div>
+          </div>
+        </div>
+
+        <div class="mini-grid">
+          <div>
+            <label class="field-label" for="tweetLength" id="tweetLengthLabel">段子长度</label>
+            <select id="tweetLength" class="field">
+              <option value="短">短</option>
+              <option value="中" selected>中</option>
+              <option value="长">长</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="field-label" id="emotionLabel">情绪风格</label>
+        <div class="emotion-grid" id="emotionGrid">
+          <button class="emotion-btn active" type="button" data-emotion="幽默">幽默</button>
+          <button class="emotion-btn" type="button" data-emotion="愤怒">愤怒</button>
+          <button class="emotion-btn" type="button" data-emotion="反串">反串</button>
+          <button class="emotion-btn" type="button" data-emotion="鼓励">鼓励</button>
+          <button class="emotion-btn" type="button" data-emotion="专业">专业</button>
+          <button class="emotion-btn" type="button" data-emotion="温暖">温暖</button>
+        </div>
+
+        <button id="advancedToggle" class="advanced-toggle" type="button">
+          <span id="advancedLabel">高级设置</span>
+          <span id="advancedArrow" class="advanced-arrow">▼</span>
+        </button>
+
+        <div id="advancedPanel" class="advanced-panel">
+          <label class="field-label" for="tweetPrompt" id="promptLabel">提示词草稿</label>
+          <textarea id="tweetPrompt" class="prompt-box"></textarea>
+        </div>
+
+        <div class="action-divider"></div>
+
+        <div class="action-row">
+          <button id="generateTweetBtn" class="primary-btn">开始抽卡</button>
+          <button id="rerollTweetBtn" class="ghost-btn">再抽一次</button>
+          <button id="downloadImageBtn" class="ghost-btn" disabled>下载图片</button>
+          <button id="sendTweetBtn" class="ghost-btn" disabled>发送推特</button>
+          <button id="copyTweetBtn" class="ghost-btn" disabled>复制结果</button>
+        </div>
+
+        <div class="output-card">
+          <div class="output-head">
+            <span id="outputTitle">生成结果</span>
+            <span class="pill" id="outputStatus">未生成</span>
+          </div>
+          <pre id="tweetOutput" class="output-box">这里会显示生成的推文段子结果。当前是工作台骨架版本，下一步可以接 RSS 抓取和 AI 调用。</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="tweet-generator.js"></script>
+</body>
+</html>

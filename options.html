@@ -225,6 +225,48 @@
       color: var(--accent);
       background: var(--accent-dim);
     }
+    .tool-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 16px 14px;
+    }
+    .tool-card-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+    .tool-card-desc {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.65;
+      color: var(--text-sub);
+    }
+    .tool-card-actions {
+      margin-top: 14px;
+      display: flex;
+    }
+    .tool-btn {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tool-btn:hover {
+      border-color: var(--accent-border);
+      color: var(--accent);
+      background: var(--accent-dim);
+      transform: translateY(-1px);
+    }
 
     /* placeholder color */
     ::placeholder { color: var(--text-dim); }
@@ -370,6 +412,17 @@
       2. 右键 → <strong>生成情感回复</strong><br>
       3. 选择情绪风格，点击生成<br>
       4. 一键复制回复内容
+    </div>
+
+    <hr class="divider" />
+
+    <label id="toolboxLabel">创作工具</label>
+    <div class="tool-card">
+      <div class="tool-card-title" id="tweetToolTitle">推特段子生成器</div>
+      <div class="tool-card-desc" id="tweetToolDesc">选择或输入 RSS 源，整理热点事件，再生成带情绪风格的推文段子。</div>
+      <div class="tool-card-actions">
+        <button class="tool-btn" id="openTweetGeneratorBtn">打开生成器</button>
+      </div>
     </div>
 
     <hr class="divider" />

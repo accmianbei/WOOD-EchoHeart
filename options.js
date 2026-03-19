@@ -5,6 +5,7 @@ const toggleBtn = document.getElementById("toggleVisibility");
 const saveBtn = document.getElementById("saveBtn");
 const statusEl = document.getElementById("status");
 const hintText = document.getElementById("hintText");
+const openTweetGeneratorBtn = document.getElementById("openTweetGeneratorBtn");
 
 // ── I18N ──
 const OPTIONS_I18N = {
@@ -29,6 +30,10 @@ const OPTIONS_I18N = {
     },
     usageTitle: "// 使用方式",
     usageSteps: ["在网页选中一段文字", "右键 → 生成情感回复", "选择情绪风格，点击生成", "一键复制回复内容"],
+    toolboxLabel: "创作工具",
+    tweetToolTitle: "推特段子生成器",
+    tweetToolDesc: "选择或输入 RSS 源，整理热点事件，再生成带情绪风格的推文段子。",
+    openTweetGeneratorBtn: "打开生成器",
     followText: "觉得好用？关注作者，获取更新动态 ♡"
   },
   en: {
@@ -52,6 +57,10 @@ const OPTIONS_I18N = {
     },
     usageTitle: "// How to use",
     usageSteps: ["Select some text on any webpage", "Right-click → Generate Emotional Reply", "Choose an emotion style and click Generate", "Copy the reply with one click"],
+    toolboxLabel: "Creative Tools",
+    tweetToolTitle: "Tweet Bit Generator",
+    tweetToolDesc: "Select or paste an RSS source, organize a trending event, and turn it into an emotion-driven tweet bit.",
+    openTweetGeneratorBtn: "Open Generator",
     followText: "Enjoying it? Follow the author for updates ♡"
   }
 };
@@ -89,6 +98,10 @@ function applyOptionsLang(lang) {
     infoBox.appendChild(document.createTextNode(`${i + 1}. ${step}`));
   });
 
+  document.getElementById("toolboxLabel").textContent = t.toolboxLabel;
+  document.getElementById("tweetToolTitle").textContent = t.tweetToolTitle;
+  document.getElementById("tweetToolDesc").textContent = t.tweetToolDesc;
+  openTweetGeneratorBtn.textContent = t.openTweetGeneratorBtn;
   document.querySelector('.follow-text').textContent = t.followText;
   updateProviderUI(providerSelect.value);
 }
@@ -189,6 +202,10 @@ saveBtn.addEventListener("click", () => {
     statusEl.className = "status success";
     setTimeout(() => { statusEl.textContent = ""; }, 3000);
   });
+});
+
+openTweetGeneratorBtn.addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("tweet-generator.html") });
 });
 
 const scrollTimers = new WeakMap();

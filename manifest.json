@@ -11,6 +11,8 @@
     "scripting"
   ],
   "host_permissions": [
+    "http://*/*",
+    "https://*/*",
     "https://api.anthropic.com/*",
     "https://api.openai.com/*",
     "https://api.deepseek.com/*",
