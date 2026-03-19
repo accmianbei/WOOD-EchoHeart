@@ -28,7 +28,8 @@ const I18N = {
     lengths: { 短: "短", 中: "中", 长: "长" },
     emotions: {
       温暖: "温暖", 共情: "共情", 鼓励: "鼓励", 幽默: "幽默",
-      专业: "专业", 关怀: "关怀", 感谢: "感谢", 道歉: "道歉"
+      专业: "专业", 关怀: "关怀", 感谢: "感谢", 道歉: "道歉",
+      愤怒: "愤怒", 反串: "反串"
     },
     errNoText: "请先在网页上选中文字，然后右键使用此功能",
     errNoKey: "请先点击右上角 ⚙️ 设置 API Key",
@@ -64,7 +65,8 @@ const I18N = {
     lengths: { 短: "S", 中: "M", 长: "L" },
     emotions: {
       温暖: "Warm", 共情: "Empathy", 鼓励: "Cheer", 幽默: "Humor",
-      专业: "Pro", 关怀: "Care", 感谢: "Thanks", 道歉: "Sorry"
+      专业: "Pro", 关怀: "Care", 感谢: "Thanks", 道歉: "Sorry",
+      愤怒: "Angry", 反串: "Ironic Roleplay"
     },
     errNoText: "Please select text on a webpage first, then right-click to use this feature",
     errNoKey: "Please click the ⚙️ icon to set your API Key",
@@ -247,7 +249,7 @@ copyBtn.addEventListener("click", async () => {
 // ── Prompt templates ──
 function buildTemplate() {
   if (currentLang === 'en') return buildTemplateEn();
-  const lengthMap = { 短: "1-2句话", 中: "3-5句话", 长: "5-8句话" };
+  const lengthMap = { 短: "10-18字", 中: "30-45字", 长: "100-130字" };
   const toneMap = { 1: "非常温和、轻声细语", 2: "温和亲切", 3: "自然真诚", 4: "热情积极", 5: "非常热烈、充满激情" };
   const personalityPrompts = {
     朋友: "你是一个贴心的好朋友，语气亲密自然，像在和老朋友聊天",
@@ -256,6 +258,18 @@ function buildTemplate() {
     心理咨询师: "你是一位专业的心理咨询师，善于倾听、理解和给予情感支持",
     家人: "你是温暖的家人，充满爱意和关怀，语气温柔体贴"
   };
+  const emotionPrompts = {
+    温暖: "整体氛围要温柔、柔和，让人感到被安稳接住",
+    共情: "重点放在理解对方处境和情绪上，让回复有陪伴感但不过度说教",
+    鼓励: "传达支持、打气和向前看的力量，让人读完更有劲",
+    幽默: "可以轻松俏皮一点，带一点幽默感，但不要油腻或冒犯",
+    专业: "表达要清晰、克制、得体，给人可靠和有分寸的感觉",
+    关怀: "语气要细腻体贴，像在认真照顾对方的情绪和状态",
+    感谢: "把谢意说得真诚具体，让人感到被珍惜、被看见",
+    道歉: "道歉要诚恳负责，不找借口，表达修复关系的态度",
+    愤怒: "情绪上要明确带有不满和火气，态度强硬、有压迫感；可以尖锐，但不要爆粗口、不要低俗辱骂，也不要失控到完全不可沟通",
+    反串: "用一本正经却带点阴阳怪气的方式表达，表面像在顺着对方，实际是在反着说、轻轻讽刺；要有戏谑感和反差感，但不要过度粗俗"
+  };
   return `${personalityPrompts[currentPersonality] || personalityPrompts["朋友"]}。
 
 对方说了以下这段话：
@@ -263,7 +277,8 @@ function buildTemplate() {
 {{原文}}
 """
 
-请以"${currentEmotion}"的情绪风格，用${toneMap[currentTone]}的语气，生成一段${lengthMap[currentLength]}的回复。
+请以"${currentEmotion}"的情绪风格，用${toneMap[currentTone]}的语气，生成一条长度控制在${lengthMap[currentLength]}的回复。
+情绪要求：${emotionPrompts[currentEmotion] || `整体体现明显的"${currentEmotion}"情绪特征`}。
 
 要求：
 - 回复要自然真诚，有人情味
@@ -273,7 +288,7 @@ function buildTemplate() {
 }
 
 function buildTemplateEn() {
-  const lengthMap = { 短: "1-2 sentences", 中: "3-5 sentences", 长: "5-8 sentences" };
+  const lengthMap = { 短: "10-18 characters", 中: "30-45 characters", 长: "100-130 characters" };
   const toneMap = { 1: "very gentle and soft", 2: "gentle and warm", 3: "natural and sincere", 4: "enthusiastic and positive", 5: "very passionate and energetic" };
   const personalityPrompts = {
     朋友: "You are a caring best friend, speaking naturally and intimately, like talking to an old friend",
@@ -282,6 +297,18 @@ function buildTemplateEn() {
     心理咨询师: "You are a professional therapist, skilled at listening, understanding, and providing emotional support",
     家人: "You are a warm family member, full of love and care, speaking gently and tenderly"
   };
+  const emotionPrompts = {
+    温暖: "Keep the overall feeling warm, soft, and emotionally reassuring",
+    共情: "Focus on understanding the other person's situation and emotions without sounding formulaic",
+    鼓励: "Convey support, confidence, and uplifting energy that helps the reader feel stronger",
+    幽默: "Be light and playful with a sense of humor, but never cringey or offensive",
+    专业: "Keep the expression clear, measured, and appropriate, with a reliable tone",
+    关怀: "Sound attentive, gentle, and sincerely caring toward the other person's emotional state",
+    感谢: "Express gratitude in a sincere and specific way that makes the other person feel appreciated",
+    道歉: "Apologize with sincerity and accountability, without making excuses",
+    愤怒: "Make the reply clearly angry, dissatisfied, and forceful, with real edge and pressure; it can be sharp, but avoid profanity, cheap insults, or fully uncontrolled rage",
+    反串: "Use a straight-faced but sarcastic roleplay style: sound as if you are agreeing on the surface while actually mocking or reversing the meaning in a sly, teasing way, without becoming too vulgar"
+  };
   return `${personalityPrompts[currentPersonality] || personalityPrompts["朋友"]}.
 
 The other person said:
@@ -289,7 +316,8 @@ The other person said:
 {{text}}
 """
 
-Please generate a reply in a "${I18N.en.emotions[currentEmotion] || currentEmotion}" emotional style, with a ${toneMap[currentTone]} tone, in ${lengthMap[currentLength]}.
+Please generate a reply in a "${I18N.en.emotions[currentEmotion] || currentEmotion}" emotional style, with a ${toneMap[currentTone]} tone, and keep the reply within ${lengthMap[currentLength]}.
+Emotion guidance: ${emotionPrompts[currentEmotion] || `Show a clear "${I18N.en.emotions[currentEmotion] || currentEmotion}" emotional signature`}.
 
 Requirements:
 - The reply should feel natural and sincere
