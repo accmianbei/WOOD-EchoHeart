@@ -17,7 +17,12 @@ Icon
 *.zip
 *.crx
 *.pem
+dist/
 
 # Secrets (never commit API keys)
 .env
 secrets.*
+
+# Local development notes
+devolop.md
+DEVELOP.md
