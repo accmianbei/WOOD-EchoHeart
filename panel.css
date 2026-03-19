@@ -391,6 +391,12 @@ html, body {
 }
 .prompt-editor.dirty { color: var(--text); }
 
+.prompt-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .reset-btn {
   padding: 3px 10px;
   border: 1px solid var(--border2);

@@ -33,15 +33,11 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.storage.session.set({ selectedText }, () => {
       chrome.tabs.sendMessage(tab.id, { action: "showPanel" }, () => {
         if (chrome.runtime.lastError) {
-          // Content script not yet injected (e.g. tab existed before extension reload)
-          chrome.scripting.executeScript(
-            { target: { tabId: tab.id }, files: ["content.js"] },
-            () => {
-              if (!chrome.runtime.lastError) {
-                chrome.tabs.sendMessage(tab.id, { action: "showPanel" });
-              }
-            }
-          );
+          // Existing tabs opened before an extension reload can keep stale content
+          // scripts around. Avoid reinjecting here, which can create duplicate
+          // isolated-world declarations on some pages. A normal page refresh lets
+          // the manifest-declared content script attach cleanly again.
+          console.warn("Content script unavailable in this tab. Refresh the page and try again.");
         }
       });
     });

@@ -150,7 +150,20 @@ h1 {
 }
 
 .section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 10px;
+}
+
+.section-tool-btn {
+  min-height: 32px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.7px;
+  flex-shrink: 0;
 }
 
 .section-kicker,

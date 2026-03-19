@@ -37,6 +37,8 @@ const TWEET_I18N = {
     generateTweetBtn: "开始抽卡",
     generatingBtn: "生成中...",
     rerollTweetBtn: "再抽一次",
+    resetPrefsBtn: "恢复偏好",
+    resetDone: "已恢复",
     downloadImageBtn: "下载图片",
     sendTweetBtn: "发送推特",
     copyTweetBtn: "复制结果",
@@ -103,6 +105,8 @@ const TWEET_I18N = {
     generateTweetBtn: "Start Draw",
     generatingBtn: "Generating...",
     rerollTweetBtn: "Roll Again",
+    resetPrefsBtn: "Reset Prefs",
+    resetDone: "Reset",
     downloadImageBtn: "Download Image",
     sendTweetBtn: "Post to X",
     copyTweetBtn: "Copy Result",
@@ -362,6 +366,7 @@ const addKeywordBtn = document.getElementById("addKeywordBtn");
 const keywordTags = document.getElementById("keywordTags");
 const generateTweetBtn = document.getElementById("generateTweetBtn");
 const rerollTweetBtn = document.getElementById("rerollTweetBtn");
+const resetTweetPrefsBtn = document.getElementById("resetTweetPrefsBtn");
 const downloadImageBtn = document.getElementById("downloadImageBtn");
 const sendTweetBtn = document.getElementById("sendTweetBtn");
 const copyTweetBtn = document.getElementById("copyTweetBtn");
@@ -376,8 +381,96 @@ let events = DEFAULT_EVENTS.map((item) => ({ ...item }));
 let currentDrawEventId = null;
 let promptDirty = false;
 
+const TWEET_PREFS_KEY = "tweetGeneratorPrefs";
+const DEFAULT_TWEET_PREFS = {
+  currentEmotion: "幽默",
+  tweetLength: "中",
+  keywordWeights: DEFAULT_KEYWORDS.map((item) => ({ ...item })),
+  sourcePool: DEFAULT_SOURCES.map((item) => ({ ...item })),
+  promptDirty: false,
+  promptText: "",
+  advancedOpen: false
+};
+
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme || "dark";
+}
+
+function normalizeSourcePool(items) {
+  if (!Array.isArray(items) || !items.length) return DEFAULT_SOURCES.map((item) => ({ ...item }));
+  return items
+    .map((item) => ({
+      label: truncate(item?.label || "", 80),
+      url: String(item?.url || "").trim()
+    }))
+    .filter((item) => item.url)
+    .filter((item, index, list) => list.findIndex((entry) => entry.url.toLowerCase() === item.url.toLowerCase()) === index);
+}
+
+function normalizeKeywordWeights(items) {
+  if (!Array.isArray(items) || !items.length) return DEFAULT_KEYWORDS.map((item) => ({ ...item }));
+  return items
+    .map((item) => ({
+      label: truncate(item?.label || "", 40),
+      weight: Math.max(1, Math.min(10, Number(item?.weight) || 1))
+    }))
+    .filter((item) => item.label)
+    .filter((item, index, list) => list.findIndex((entry) => entry.label.toLowerCase() === item.label.toLowerCase()) === index);
+}
+
+function setActiveEmotion(emotion) {
+  document.getElementById("emotionGrid").querySelectorAll(".emotion-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.emotion === emotion);
+  });
+}
+
+function setAdvancedOpen(isOpen) {
+  advancedPanel.classList.toggle("open", isOpen);
+  advancedToggle.classList.toggle("open", isOpen);
+}
+
+function saveTweetPreferences() {
+  chrome.storage.local.set({
+    [TWEET_PREFS_KEY]: {
+      currentEmotion,
+      tweetLength: tweetLength.value,
+      keywordWeights,
+      sourcePool,
+      promptDirty,
+      promptText: tweetPrompt.value,
+      advancedOpen: advancedPanel.classList.contains("open")
+    }
+  });
+}
+
+function flashButtonText(button, nextText, delay = 1600) {
+  const previousText = button.textContent;
+  button.textContent = nextText;
+  clearTimeout(button._flashTimer);
+  button._flashTimer = setTimeout(() => {
+    button.textContent = previousText;
+  }, delay);
+}
+
+function applyTweetPreferences(savedPrefs = {}) {
+  const prefs = { ...DEFAULT_TWEET_PREFS, ...savedPrefs };
+  currentEmotion = prefs.currentEmotion || DEFAULT_TWEET_PREFS.currentEmotion;
+  tweetLength.value = prefs.tweetLength || DEFAULT_TWEET_PREFS.tweetLength;
+  keywordWeights = normalizeKeywordWeights(prefs.keywordWeights);
+  sourcePool = normalizeSourcePool(prefs.sourcePool);
+  promptDirty = !!prefs.promptDirty;
+
+  setActiveEmotion(currentEmotion);
+  setAdvancedOpen(!!prefs.advancedOpen);
+  renderSourceTags();
+  renderKeywordTags();
+
+  if (promptDirty && prefs.promptText) {
+    tweetPrompt.value = prefs.promptText;
+  } else {
+    promptDirty = false;
+    refreshPrompt(true);
+  }
 }
 
 function getStrings() {
@@ -632,6 +725,7 @@ function renderSourceTags() {
       sourcePool = sourcePool.filter((entry) => entry.url !== item.url);
       renderSourceTags();
       refreshPrompt(true);
+      saveTweetPreferences();
     });
     chip.appendChild(removeBtn);
 
@@ -668,6 +762,7 @@ function renderKeywordTags() {
       events = events.map(scoreEventLocally).sort((a, b) => b.score - a.score);
       renderEvents();
       refreshPrompt(true);
+      saveTweetPreferences();
     });
     chip.appendChild(removeBtn);
 
@@ -687,6 +782,7 @@ function addSourceTag() {
   rssPreset.value = "";
   renderSourceTags();
   refreshPrompt(true);
+  saveTweetPreferences();
 }
 
 function addKeywordTag() {
@@ -708,6 +804,7 @@ function addKeywordTag() {
   events = events.map(scoreEventLocally).sort((a, b) => b.score - a.score);
   renderEvents();
   refreshPrompt(true);
+  saveTweetPreferences();
 }
 
 function applyLang(lang) {
@@ -742,6 +839,7 @@ function applyLang(lang) {
   addKeywordBtn.textContent = t.addKeywordBtn;
   generateTweetBtn.textContent = generateTweetBtn.disabled ? t.generatingBtn : t.generateTweetBtn;
   rerollTweetBtn.textContent = t.rerollTweetBtn;
+  resetTweetPrefsBtn.textContent = t.resetPrefsBtn;
   downloadImageBtn.textContent = t.downloadImageBtn;
   sendTweetBtn.textContent = t.sendTweetBtn;
   copyTweetBtn.textContent = copyTweetBtn.disabled ? t.copyTweetBtn : t.copied;
@@ -1074,24 +1172,27 @@ async function drawResult(isReroll = false) {
 
 document.getElementById("emotionGrid").querySelectorAll(".emotion-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".emotion-btn").forEach((node) => node.classList.remove("active"));
-    btn.classList.add("active");
     currentEmotion = btn.dataset.emotion;
+    setActiveEmotion(currentEmotion);
     refreshPrompt(true);
+    saveTweetPreferences();
   });
 });
 
 tweetPrompt.addEventListener("input", () => {
   promptDirty = true;
+  saveTweetPreferences();
 });
 
 tweetLength.addEventListener("change", () => {
   refreshPrompt(true);
+  saveTweetPreferences();
 });
 
 advancedToggle.addEventListener("click", () => {
   const open = advancedPanel.classList.toggle("open");
   advancedToggle.classList.toggle("open", open);
+  saveTweetPreferences();
 });
 
 rssPreset.addEventListener("change", () => {
@@ -1124,6 +1225,25 @@ rerollTweetBtn.addEventListener("click", () => {
   drawResult(true);
 });
 
+resetTweetPrefsBtn.addEventListener("click", async () => {
+  await chrome.storage.local.remove(TWEET_PREFS_KEY);
+  sourcePool = DEFAULT_SOURCES.map((item) => ({ ...item }));
+  keywordWeights = DEFAULT_KEYWORDS.map((item) => ({ ...item }));
+  events = DEFAULT_EVENTS.map((item) => ({ ...item }));
+  currentDrawEventId = null;
+  promptDirty = false;
+  tweetPrompt.value = "";
+  tweetOutput.dataset.generated = "";
+  outputStatus.dataset.ready = "";
+  tweetOutput.textContent = getStrings().outputPlaceholder;
+  setOutputStatus("outputStatusIdle");
+  setEventStatus("eventStatusWaiting");
+  applyTweetPreferences(DEFAULT_TWEET_PREFS);
+  renderEvents();
+  saveTweetPreferences();
+  flashButtonText(resetTweetPrefsBtn, getStrings().resetDone);
+});
+
 copyTweetBtn.addEventListener("click", async () => {
   if (copyTweetBtn.disabled) return;
   await navigator.clipboard.writeText(tweetOutput.textContent);
@@ -1147,11 +1267,19 @@ downloadImageBtn.addEventListener("click", () => {
   triggerImageDownload(event.imageUrl);
 });
 
-chrome.storage.sync.get(["uiLang", "theme"], ({ uiLang = "zh", theme = "dark" }) => {
+async function initTweetGenerator() {
+  const [{ uiLang = "zh", theme = "dark" }, { [TWEET_PREFS_KEY]: savedPrefs = DEFAULT_TWEET_PREFS }] = await Promise.all([
+    chrome.storage.sync.get(["uiLang", "theme"]),
+    chrome.storage.local.get(TWEET_PREFS_KEY)
+  ]);
+
   currentLang = uiLang;
   applyTheme(theme);
   applyLang(uiLang);
-});
+  applyTweetPreferences(savedPrefs);
+}
+
+initTweetGenerator();
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;

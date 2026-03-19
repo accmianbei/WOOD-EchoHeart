@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "木头",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "选中文字，右键生成有温度的 AI 回复",
   "permissions": [
     "contextMenus",

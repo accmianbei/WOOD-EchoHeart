@@ -11,6 +11,8 @@ const I18N = {
     labelTone: "语气",
     labelPrompt: "提示词",
     resetBtn: "重置",
+    resetPrefsBtn: "恢复偏好",
+    resetDone: "已恢复",
     sectionEmotion: "情绪风格",
     generateBtn: "生成回复",
     loadingText: "生成中...",
@@ -48,6 +50,8 @@ const I18N = {
     labelTone: "Tone",
     labelPrompt: "Prompt",
     resetBtn: "Reset",
+    resetPrefsBtn: "Reset Prefs",
+    resetDone: "Reset",
     sectionEmotion: "Emotion",
     generateBtn: "Generate Reply",
     loadingText: "Generating...",
@@ -87,6 +91,18 @@ let promptDirty = false;
 let currentLang = "zh";
 let currentReplyLang = "zh";
 
+const PANEL_PREFS_KEY = "replyPanelPrefs";
+const DEFAULT_PANEL_PREFS = {
+  emotion: "温暖",
+  length: "中",
+  tone: 3,
+  personality: "朋友",
+  replyLang: "zh",
+  advancedOpen: false,
+  promptDirty: false,
+  promptText: ""
+};
+
 // ── DOM Refs ──
 const replyBox = document.getElementById("replyBox");
 const copyBtn = document.getElementById("copyBtn");
@@ -101,6 +117,86 @@ const personalitySelect = document.getElementById("personalitySelect");
 const toneSlider = document.getElementById("toneSlider");
 const promptEditor = document.getElementById("promptEditor");
 const resetPromptBtn = document.getElementById("resetPromptBtn");
+const resetPrefsBtn = document.getElementById("resetPrefsBtn");
+
+function getEmotionButtons() {
+  return document.querySelectorAll(".emotion-btn");
+}
+
+function getLengthButtons() {
+  return document.querySelectorAll(".length-btn");
+}
+
+function getReplyLangButtons() {
+  return document.querySelectorAll(".lang-btn");
+}
+
+function setActiveEmotion(emotion) {
+  getEmotionButtons().forEach((btn) => btn.classList.toggle("active", btn.dataset.emotion === emotion));
+}
+
+function setActiveLength(length) {
+  getLengthButtons().forEach((btn) => btn.classList.toggle("active", btn.dataset.length === length));
+}
+
+function setActiveReplyLang(lang) {
+  getReplyLangButtons().forEach((btn) => btn.classList.toggle("active", btn.dataset.replyLang === lang));
+}
+
+function setAdvancedOpen(isOpen) {
+  advancedPanel.classList.toggle("open", isOpen);
+  toggleArrow.classList.toggle("open", isOpen);
+}
+
+function savePanelPreferences() {
+  chrome.storage.local.set({
+    [PANEL_PREFS_KEY]: {
+      emotion: currentEmotion,
+      length: currentLength,
+      tone: currentTone,
+      personality: currentPersonality,
+      replyLang: currentReplyLang,
+      advancedOpen: advancedPanel.classList.contains("open"),
+      promptDirty,
+      promptText: promptEditor.value
+    }
+  });
+}
+
+function flashButtonText(button, nextText, delay = 1600) {
+  const previousText = button.textContent;
+  button.textContent = nextText;
+  clearTimeout(button._flashTimer);
+  button._flashTimer = setTimeout(() => {
+    button.textContent = previousText;
+  }, delay);
+}
+
+function applyPanelPreferences(savedPrefs = {}) {
+  const prefs = { ...DEFAULT_PANEL_PREFS, ...savedPrefs };
+  currentEmotion = prefs.emotion;
+  currentLength = prefs.length;
+  currentTone = Number(prefs.tone) || DEFAULT_PANEL_PREFS.tone;
+  currentPersonality = prefs.personality;
+  currentReplyLang = prefs.replyLang;
+  promptDirty = !!prefs.promptDirty;
+
+  personalitySelect.value = currentPersonality;
+  toneSlider.value = String(currentTone);
+  setActiveEmotion(currentEmotion);
+  setActiveLength(currentLength);
+  setActiveReplyLang(currentReplyLang);
+  setAdvancedOpen(!!prefs.advancedOpen);
+
+  if (promptDirty && prefs.promptText) {
+    promptEditor.value = prefs.promptText;
+    promptEditor.classList.add("dirty");
+  } else {
+    promptDirty = false;
+    promptEditor.classList.remove("dirty");
+    syncPromptEditor();
+  }
+}
 
 // ── Apply Language ──
 function applyLang(lang) {
@@ -115,6 +211,7 @@ function applyLang(lang) {
   document.querySelector('.emotion-body .section-label').textContent = t.sectionEmotion;
   generateText.textContent = t.generateBtn;
   resetPromptBtn.textContent = t.resetBtn;
+  resetPrefsBtn.textContent = t.resetPrefsBtn;
   promptEditor.placeholder = t.promptPlaceholder;
 
   // data-i18n option labels
@@ -154,33 +251,35 @@ function applyLang(lang) {
 
 // ── Init ──
 async function init() {
-  const [{ selectedText: text }, { uiLang = "zh", theme = "dark" }] = await Promise.all([
+  const [{ selectedText: text }, { uiLang = "zh", theme = "dark" }, { [PANEL_PREFS_KEY]: panelPrefs = DEFAULT_PANEL_PREFS }] = await Promise.all([
     chrome.storage.session.get("selectedText"),
-    chrome.storage.sync.get(["uiLang", "theme"])
+    chrome.storage.sync.get(["uiLang", "theme"]),
+    chrome.storage.local.get(PANEL_PREFS_KEY)
   ]);
 
   selectedText = text || "";
   document.documentElement.dataset.theme = theme;
   applyLang(uiLang);
+  applyPanelPreferences(panelPrefs);
 }
 
 // ── Emotion buttons ──
 document.querySelectorAll(".emotion-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".emotion-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
     currentEmotion = btn.dataset.emotion;
+    setActiveEmotion(currentEmotion);
     syncPromptEditor();
+    savePanelPreferences();
   });
 });
 
 // ── Length buttons ──
 document.querySelectorAll(".length-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".length-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
     currentLength = btn.dataset.length;
+    setActiveLength(currentLength);
     syncPromptEditor();
+    savePanelPreferences();
   });
 });
 
@@ -188,21 +287,23 @@ document.querySelectorAll(".length-btn").forEach(btn => {
 personalitySelect.addEventListener("change", () => {
   currentPersonality = personalitySelect.value;
   syncPromptEditor();
+  savePanelPreferences();
 });
 
 // ── Tone slider ──
 toneSlider.addEventListener("input", () => {
   currentTone = parseInt(toneSlider.value);
   syncPromptEditor();
+  savePanelPreferences();
 });
 
 // ── Reply language toggle ──
 document.querySelectorAll(".lang-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
     currentReplyLang = btn.dataset.replyLang;
+    setActiveReplyLang(currentReplyLang);
     syncPromptEditor();
+    savePanelPreferences();
   });
 });
 
@@ -210,6 +311,7 @@ document.querySelectorAll(".lang-btn").forEach(btn => {
 advancedToggle.addEventListener("click", () => {
   const isOpen = advancedPanel.classList.toggle("open");
   toggleArrow.classList.toggle("open", isOpen);
+  savePanelPreferences();
 });
 
 // ── Copy helper (with execCommand fallback) ──
@@ -335,12 +437,21 @@ function syncPromptEditor() {
 promptEditor.addEventListener("input", () => {
   promptDirty = true;
   promptEditor.classList.add("dirty");
+  savePanelPreferences();
 });
 
 resetPromptBtn.addEventListener("click", () => {
   promptDirty = false;
   promptEditor.classList.remove("dirty");
   syncPromptEditor();
+  savePanelPreferences();
+});
+
+resetPrefsBtn.addEventListener("click", async () => {
+  await chrome.storage.local.remove(PANEL_PREFS_KEY);
+  applyPanelPreferences(DEFAULT_PANEL_PREFS);
+  savePanelPreferences();
+  flashButtonText(resetPrefsBtn, (I18N[currentLang] || I18N.zh).resetDone);
 });
 
 // ── Provider configs ──
